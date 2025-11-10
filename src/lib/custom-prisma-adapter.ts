@@ -18,16 +18,23 @@ export function CustomPrismaAdapter(p: PrismaClient) {
   return {
     ...adapter,
     createUser: async (data: UserData) => {
-      // Ensure preferences is a string
-      const userData = {
-        ...data,
-        preferences: typeof data.preferences === 'string' 
-          ? data.preferences 
-          : JSON.stringify(data.preferences || { categories: [], savedVideos: [], watchedVideos: [] })
-      };
+      // Extract preferences and ensure it's a string
+      const { preferences, ...userData } = data;
+      const preferencesString = typeof preferences === 'string' 
+        ? preferences 
+        : JSON.stringify(preferences || { categories: [], savedVideos: [], watchedVideos: [] });
       
+      // First create the user
       const user = await prisma.user.create({
         data: userData,
+      });
+
+      // Then create the user preferences
+      await prisma.userPreferences.create({
+        data: {
+          userId: user.id,
+          preferences: preferencesString
+        }
       });
 
       return user;
@@ -36,18 +43,30 @@ export function CustomPrismaAdapter(p: PrismaClient) {
     getUserByEmail: adapter.getUserByEmail,
     getUserByAccount: adapter.getUserByAccount,
     updateUser: async (data: UserData & { id: string }) => {
-      // Ensure preferences is a string
-      const userData = { ...data };
-      if ('preferences' in userData) {
-        userData.preferences = typeof userData.preferences === 'string' 
-          ? userData.preferences 
-          : JSON.stringify(userData.preferences);
-      }
+      // Extract preferences if it exists
+      const { preferences, ...userData } = data;
       
+      // Update the user
       const user = await prisma.user.update({
         where: { id: data.id },
         data: userData,
       });
+
+      // Update preferences if they were provided
+      if ('preferences' in data) {
+        const preferencesString = typeof preferences === 'string' 
+          ? preferences 
+          : JSON.stringify(preferences);
+        
+        await prisma.userPreferences.upsert({
+          where: { userId: data.id },
+          update: { preferences: preferencesString },
+          create: { 
+            userId: data.id,
+            preferences: preferencesString 
+          }
+        });
+      }
 
       return user;
     },
