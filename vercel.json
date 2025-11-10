@@ -1,5 +1,5 @@
 {
-  "buildCommand": "node vercel-install.js && next build",
+  "buildCommand": "npm run vercel-build",
   "installCommand": "npm install --legacy-peer-deps",
   "framework": "nextjs",
   "outputDirectory": ".next"
