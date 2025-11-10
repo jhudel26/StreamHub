@@ -2,12 +2,11 @@
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
-    serverActions: { allowedOrigins: ['localhost:3000'] }
+    serverActions: { 
+      allowedOrigins: ['localhost:3000'] 
+    }
   },
   output: 'standalone',
-  serverExternalPackages: ['@prisma/client'],
-  // Disable static optimization for API routes
-  skipTrailingSlashRedirect: true,
   images: {
     remotePatterns: [
       {
@@ -20,26 +19,19 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
+        hostname: 'm.media-amazon.com',
       },
       {
         protocol: 'https',
-        hostname: 'avatars.githubusercontent.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 's.gravatar.com',
-      },
+        hostname: 'www.hbo.com',
+      }
     ],
   },
-  compiler: {
-    styledComponents: true,
-  },
-  webpack(config) {
+  webpack: (config) => {
+    // Add Prisma client to the webpack externals to prevent build errors
+    config.externals = [...(config.externals || []), { '@prisma/client': '@prisma/client' }];
     return config;
-  },
-  // Add empty turbopack config to suppress warning
-  turbopack: {},
+  }
 };
 
 module.exports = nextConfig;
