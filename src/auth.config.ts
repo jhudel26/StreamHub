@@ -85,16 +85,19 @@ export const authOptions: NextAuthOptions = {
         where: { userId: dbUser.id },
       });
 
+      // Ensure preferences is always a string
+      const preferences = userPrefs?.preferences || JSON.stringify({
+        categories: [],
+        savedVideos: [],
+        watchedVideos: []
+      });
+
       return {
         id: dbUser.id,
         name: dbUser.name,
         email: dbUser.email,
         picture: dbUser.image,
-        preferences: userPrefs?.preferences || JSON.stringify({
-          categories: [],
-          savedVideos: [],
-          watchedVideos: []
-        })
+        preferences: typeof preferences === 'string' ? preferences : JSON.stringify(preferences)
       };
     },
   },
