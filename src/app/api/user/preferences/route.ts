@@ -23,21 +23,34 @@ export async function POST(req: Request) {
   try {
     const { categories } = await req.json();
     
+    // Get existing preferences if they exist
+    const existingPrefs = await prisma.userPreferences.findUnique({
+      where: { userId: session.user.id },
+    });
+
+    // Parse existing preferences or use defaults
+    const currentPrefs = existingPrefs?.preferences 
+      ? JSON.parse(existingPrefs.preferences)
+      : { categories: [], savedVideos: [], watchedVideos: [] };
+
+    // Update categories
+    const updatedPrefs = {
+      ...currentPrefs,
+      categories: categories || currentPrefs.categories || []
+    };
+
     await prisma.userPreferences.upsert({
       where: { userId: session.user.id },
       update: { 
-        preferences: { 
-          ...session.user.preferences,
-          categories: categories || []
-        } 
+        preferences: JSON.stringify(updatedPrefs)
       },
       create: { 
         userId: session.user.id,
-        preferences: { 
+        preferences: JSON.stringify({
           categories: categories || [],
           savedVideos: [],
           watchedVideos: []
-        }
+        })
       }
     });
 
