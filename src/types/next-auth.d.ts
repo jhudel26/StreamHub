@@ -3,11 +3,7 @@ import 'next-auth';
 declare module 'next-auth' {
   interface User {
     id: string;
-    preferences?: {
-      categories: string[];
-      savedVideos: string[];
-      watchedVideos: string[];
-    };
+    preferences?: string; // Stored as JSON string
   }
 
   interface Session {
@@ -16,11 +12,17 @@ declare module 'next-auth' {
       name?: string | null;
       email?: string | null;
       image?: string | null;
-      preferences?: {
-        categories: string[];
-        savedVideos: string[];
-        watchedVideos: string[];
-      };
-    };
+      preferences?: string; // Stored as JSON string
+    } & DefaultSession['user'];
+  }
+}
+
+declare module 'next-auth/jwt' {
+  interface JWT {
+    id: string;
+    name?: string | null;
+    email?: string | null;
+    picture?: string | null;
+    preferences?: string; // Stored as JSON string
   }
 }
