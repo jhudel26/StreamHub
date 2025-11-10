@@ -67,26 +67,34 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async jwt({ token, user }) {
-      const dbUser = await prisma.user.findFirst({
-        where: {
-          email: token.email,
-        },
+      // If we already have the user ID, just return the token
+      if (token.id) {
+        return token;
+      }
+
+      // If we have a user object (happens on sign in)
+      if (user) {
+        token.id = user.id;
+        token.name = user.name;
+        token.email = user.email;
+        token.picture = user.image;
+        return token;
+      }
+
+      // For subsequent requests, find the user by email
+      const dbUser = await prisma.user.findUnique({
+        where: { email: token.email },
+        include: {
+          preferences: true
+        }
       });
 
       if (!dbUser) {
-        if (user) {
-          token.id = user.id;
-        }
         return token;
       }
 
       // Get user preferences if they exist
-      const userPrefs = await prisma.userPreferences.findUnique({
-        where: { userId: dbUser.id },
-      });
-
-      // Ensure preferences is always a string
-      const preferences = userPrefs?.preferences || JSON.stringify({
+      const preferences = dbUser.preferences?.preferences || JSON.stringify({
         categories: [],
         savedVideos: [],
         watchedVideos: []
@@ -97,7 +105,7 @@ export const authOptions: NextAuthOptions = {
         name: dbUser.name,
         email: dbUser.email,
         picture: dbUser.image,
-        preferences: typeof preferences === 'string' ? preferences : JSON.stringify(preferences)
+        preferences: preferences
       };
     },
   },
