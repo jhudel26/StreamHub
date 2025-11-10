@@ -80,11 +80,21 @@ export const authOptions: NextAuthOptions = {
         return token;
       }
 
+      // Get user preferences if they exist
+      const userPrefs = await prisma.userPreferences.findUnique({
+        where: { userId: dbUser.id },
+      });
+
       return {
         id: dbUser.id,
         name: dbUser.name,
         email: dbUser.email,
         picture: dbUser.image,
+        preferences: userPrefs?.preferences || JSON.stringify({
+          categories: [],
+          savedVideos: [],
+          watchedVideos: []
+        })
       };
     },
   },
