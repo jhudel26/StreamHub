@@ -26,7 +26,8 @@ export const authOptions: NextAuthOptions = {
                   // In a real app, you would verify a hashed password here
                   // For demo purposes, we're just checking if an account exists
                 }
-              } 
+              },
+              preferences: true
             }
           });
 
@@ -83,29 +84,18 @@ export const authOptions: NextAuthOptions = {
 
       // For subsequent requests, find the user by email
       const dbUser = await prisma.user.findUnique({
-        where: { email: token.email },
-        include: {
-          preferences: true
-        }
+        where: { email: token.email }
       });
 
       if (!dbUser) {
         return token;
       }
 
-      // Get user preferences if they exist
-      const preferences = dbUser.preferences?.preferences || JSON.stringify({
-        categories: [],
-        savedVideos: [],
-        watchedVideos: []
-      });
-
       return {
         id: dbUser.id,
         name: dbUser.name,
         email: dbUser.email,
-        picture: dbUser.image,
-        preferences: preferences
+        picture: dbUser.image
       };
     },
   },
