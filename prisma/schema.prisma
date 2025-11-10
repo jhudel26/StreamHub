@@ -55,7 +55,7 @@ model UserPreferences {
   id          String   @id @default(cuid())
   userId      String   @unique
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  preferences Json?    @default("{}")
+  preferences String?  @default("{}")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
