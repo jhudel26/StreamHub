@@ -45,11 +45,12 @@
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.19",
     "babel-plugin-react-compiler": "1.0.0",
-    "eslint": "^9",
-    "eslint-config-next": "16.0.1",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "14.1.0",
     "postcss": "^8.4.38",
-    "tailwindcss": "^3.4.1",
+    "prisma": "5.7.1",
+    "tailwindcss": "^3.4.3",
     "tailwindcss-animate": "^1.0.7",
-    "typescript": "^5"
+    "typescript": "^5.4.5"
   }
 }
